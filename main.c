@@ -361,6 +361,14 @@ public:
 		cout << "Copy constructor for Technician" << endl;
 		this->mID = t1.mID;
 		this->mName = t1.mName;
+		//this指针
+		//一个对象的this指针并不是对象本身的一部分，不会影响sizeof(对象)的结果。this作用域是在类内部，当在类的非静态成员函数中访问类的非静态成员的时候， \
+		编译器会自动将对象本身的地址作为一个隐含参数传递给函数。也就是说，即使你没有写上this指针，编译器在编译的时候也是加上this的， \
+		它作为非静态成员函数的隐含形参，对各成员的访问均通过this进行。
+		//this指针是类的一个自动生成、自动隐藏的私有成员，它存在于类的非静态成员函数中，指向被调用函数所在的对象。 \
+		全局仅有一个this指针，当一个对象被创建时，this指针就存放指向对象数据的首地址。
+		//this只能在成员函数中使用。全局函数，静态函数都不能使用this。原因是this指的是当前对象，而静态成员函数是属于类的，要用类来访问
+		//友元函数没有 this 指针，因为友元不是类的成员。只有成员函数才有 this 指针。
 	}
 	//必须定义拷贝构造函数的情况： \
 		只包含类类型成员或内置类型（但不是指针类型）成员的类，无须显式地定义拷贝构造函数也可以拷贝；有的类有一个数据成员是指针，或者是有成员表示在构造函数中分配的其他资源，这两种情况下都必须定义拷贝构造函数。
@@ -432,6 +440,14 @@ public:
 protected:
 	int mHour;
 	const int mHoliday;
+	//类的静态成员有两种：静态成员变量和静态成员函数。静态成员变量就是在定义时前面加了 static 关键字的成员变量；静态成员函数就是在声明时前面加了 static 关键字的成员函数。
+	static int nTotalNumber;  //静态成员变量
+	static void PrintTotal()//静态成员函数
+	{
+		//静态函数没有this指针
+		//静态函数只能访问类中的静态成员变量
+		//静态函数不需要类的实例就可以调用
+	}
 
 	void yinyong()//引用说明
 	{
@@ -696,3 +712,182 @@ int GetSum(int x)
 //bar("hello world");
 //原因在于foo()和"hello world"串都会产生一个临时对象，而在C++中，这些临时对象都是const类型的。因此上面的表达式就是试图将一个const类型的对象转换为非const类型，这是非法的。
 //引用型参数应该在能被定义为const的情况下，尽量定义为const 。
+
+//友元
+//类具有封装和信息隐藏的特性。只有类的成员函数才能访问类的私有成员，程序中的其他函数是无法访问私有成员的。 \
+非成员函数可以访问类中的公有成员，但是如果将数据成员都定义为公有的，这又破坏了隐藏的特性。 \
+另外，应该看到在某些情况下，特别是在对某些成员函数多次调用时，由于参数传递，类型检查和安全性检查等都需要时间开销，而影响程序的运行效率。
+//为了解决上述问题，提出一种使用友元的方案。 \
+友元是一种定义在类外部的普通函数或类，但它需要在类体内进行说明，为了与该类的成员函数加以区别，在说明时前面加以关键字friend。 \
+友元不是成员函数，但是它可以访问类中的私有成员。友元的作用在于提高程序的运行效率， \
+但是，它破坏了类的封装性和隐藏性，使得非成员函数可以访问类的私有成员。 \
+不过，类的访问权限确实在某些应用场合显得有些呆板，从而容忍了友元这一特别语法现象。
+//友元函数 \
+特点:友元函数是能够访问类中的私有成员的非成员函数。友元函数从语法上看，它与普通函数一样，即在定义上和调用上与普通函数一样。 \
+友元关系不具对称性。即 A 是 B 的友元，但 B 不一定是 A 的友元。 友元关系不具传递性。即 B 是 A 的友元，C 是 B 的友元，但是 C 不一定是 A 的友元。
+//class Point
+//{
+//public:
+//	Point(double xx, double yy)
+//	{
+//		x = xx;
+//		y = yy;
+//	};
+//	void Getxy();
+//	friend double Distance(Point &a, Point &b);
+//private:
+//	double x, y;
+//};
+//void Point::Getxy()
+//{
+//	cout << "(" << x << "," << y << ")" << endl;
+//}
+//double Distance(Point &a, Point &b)
+//{
+//	double dx = a.x - b.x;
+//	double dy = a.y - b.y;
+//	return sqrt(dx*dx + dy * dy);
+//}
+//int main(void)
+//{
+//	Point p1(3.0, 4.0), p2(6.0, 8.0);
+//	p1.Getxy();
+//	p2.Getxy();
+//	double d = Distance(p1, p2);
+//	cout << "Distance is" << d << endl;
+//	return 0;
+//}
+//在该程序中的Point类中说明了一个友元函数Distance()，它在说明时前边加friend关键字，标识它不是成员函数，而是友元函数。 \
+它的定义方法与普通函数定义一样，而不同于成员函数的定义，因为它不需要指出所属的类。 \
+但是，它可以引用类中的私有成员，函数体中a.x，b.x，a.y，b.y都是类的私有成员，它们是通过对象引用的。 \
+在调用友元函数时，也是同普通函数的调用一样，不要像成员函数那样调用。 \
+本例中，p1.Getxy()和p2.Getxy()这是成员函数的调用，要用对象来表示。 \
+而Distance(p1, p2)是友元函数的调用，它直接调用，不需要对象表示，它的参数是对象。(该程序的功能是已知两点坐标，求出两点的距离。)
+//友元类
+//友元除了函数以外，还可以是类，即一个类可以作另一个类的友元。当一个类作为另一个类的友元时，这就意味着这个类的所有成员函数都是另一个类的友元函数，都可以访问另一个类中的隐藏信息（包括私有成员和保护成员）。
+//注意事项
+//(1) 友元关系不能被继承。
+//(2) 友元关系是单向的，不具有交换性。若类B是类A的友元，类A不一定是类B的友元，要看在类中是否有相应的声明。
+//(3) 友元关系不具有传递性。若类B是类A的友元，类C是B的友元，类C不一定是类A的友元，同样要看类中是否有相应的申明。
+//以下语句说明类B是类A的友元类：
+//class A
+//{
+//	…
+//public:
+//	friend class B;
+//	…
+//};
+//经过以上说明后，类B的所有成员函数都是类A的友元函数，能存取类A的私有成员和保护成员。
+
+//C++ STL基本容器使用 
+//关联容器和顺序容器
+//c++中有两种类型的容器：顺序容器和关联容器，顺序容器主要有：vector、list、deque等。 \
+其中vector表示一段连续的内存地址，基于数组的实现，list表示非连续的内存，基于链表实现。 \
+deque与vector类似，但是对于首元素提供删除和插入的双向支持。 \
+关联容器主要有map和set。map是key-value形式的，set是单值。 \
+map和set只能存放唯一的key值，multimap和multiset可以存放多个相同的key值。 \
+容器类自动申请和释放内存，我们无需new和delete操作。
+
+//C++ 模板
+//模板是C++支持参数化多态的工具，使用模板可以使用户为类或者函数声明一种一般模式，使得类中的某些数据成员或者成员函数的参数、返回值取得任意类型。
+//模板是一种对类型进行参数化的工具；
+//通常有两种形式：函数模板和类模板；
+//函数模板针对仅参数类型不同的函数；
+//#include <iostream>
+//#include <string>
+//
+//using namespace std;
+//
+//template <typename T>
+//inline T const& Max(T const& a, T const& b)
+//{
+//	return a < b ? b : a;
+//}
+//int main()
+//{
+//
+//	int i = 39;
+//	int j = 20;
+//	cout << "Max(i, j): " << Max(i, j) << endl;
+//
+//	double f1 = 13.5;
+//	double f2 = 20.7;
+//	cout << "Max(f1, f2): " << Max(f1, f2) << endl;
+//
+//	string s1 = "Hello";
+//	string s2 = "World";
+//	cout << "Max(s1, s2): " << Max(s1, s2) << endl;
+//
+//	return 0;
+//}
+//类模板针对仅数据成员和成员函数类型不同的类。
+//#include <iostream>
+//#include <vector>
+//#include <cstdlib>
+//#include <string>
+//#include <stdexcept>
+//
+//using namespace std;
+//
+//template <class T>
+//class Stack {
+//private:
+//	vector<T> elems;     // 元素 
+//
+//public:
+//	void push(T const&);  // 入栈
+//	void pop();               // 出栈
+//	T top() const;            // 返回栈顶元素
+//	bool empty() const {       // 如果为空则返回真。
+//		return elems.empty();
+//	}
+//};
+//
+//template <class T>
+//void Stack<T>::push(T const& elem)
+//{
+//	// 追加传入元素的副本
+//	elems.push_back(elem);
+//}
+//
+//template <class T>
+//void Stack<T>::pop()
+//{
+//	if (elems.empty()) {
+//		throw out_of_range("Stack<>::pop(): empty stack");
+//	}
+//	// 删除最后一个元素
+//	elems.pop_back();
+//}
+//
+//template <class T>
+//T Stack<T>::top() const
+//{
+//	if (elems.empty()) {
+//		throw out_of_range("Stack<>::top(): empty stack");
+//	}
+//	// 返回最后一个元素的副本 
+//	return elems.back();
+//}
+//
+//int main()
+//{
+//	try {
+//		Stack<int>         intStack;  // int 类型的栈 
+//		Stack<string> stringStack;    // string 类型的栈 
+//
+//		// 操作 int 类型的栈 
+//		intStack.push(7);
+//		cout << intStack.top() << endl;
+//
+//		// 操作 string 类型的栈 
+//		stringStack.push("hello");
+//		cout << stringStack.top() << std::endl;
+//		stringStack.pop();
+//		stringStack.pop();
+//	}
+//	catch (exception const& ex) {
+//		cerr << "Exception: " << ex.what() << endl;
+//		return -1;
+//	}
+//}
